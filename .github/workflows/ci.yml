@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+
+      - name: shellcheck
+        run: shellcheck scripts/*.sh
+
+      - name: statusline smoke test
+        run: |
+          set -e
+          # minimal transcript with one assistant usage record
+          T="$(mktemp -d)/t.jsonl"
+          printf '{"message":{"role":"assistant","usage":{"input_tokens":1000,"cache_creation_input_tokens":0,"cache_read_input_tokens":50000,"output_tokens":200}}}\n' > "$T"
+
+          OUT="$(printf '{"model":{"display_name":"glm-test"},"context_window":{"context_window_size":200000},"transcript_path":"%s"}' "$T" | bash scripts/statusline.sh)"
+          echo "output: $OUT"
+          # strip ANSI color codes before pattern matching
+          CLEAN="$(printf '%s' "$OUT" | sed $'s/\033\\[[0-9;]*m//g')"
+
+          printf '%s' "$CLEAN" | grep -qE '\[[█░]+\]' || (echo "::error::no bar rendered" && exit 1)
+          printf '%s' "$CLEAN" | grep -qE '[0-9]+%'   || (echo "::error::no percentage" && exit 1)
+          printf '%s' "$CLEAN" | grep -qE '\$'        || (echo "::error::no cost token" && exit 1)
+          echo "smoke test passed"
+
+      - name: auto-pricing detection test
+        run: |
+          set -e
+          # no pricing.env present -> auto-detect should pick GLM rates (non-zero cost)
+          T="$(mktemp -d)/t.jsonl"
+          printf '{"message":{"role":"assistant","usage":{"input_tokens":1000,"cache_read_input_tokens":50000,"output_tokens":200}}}\n' > "$T"
+          OUT="$(printf '{"model":{"display_name":"glm-test"},"context_window":{"context_window_size":200000},"transcript_path":"%s"}' "$T" | bash scripts/statusline.sh)"
+          echo "$OUT" | grep -qvE '\$--' || (echo "::error::GLM should be auto-priced, got --" && exit 1)
+
+          # unknown model -> should show '$--'
+          OUT2="$(printf '{"model":{"display_name":"llama-unknown"},"context_window":{"context_window_size":200000},"transcript_path":"%s"}' "$T" | bash scripts/statusline.sh)"
+          echo "$OUT2" | grep -qE '\$--' || (echo "::error::unknown model should show \$--" && exit 1)
+          echo "pricing detection passed"

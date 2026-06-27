@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.0.0-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
   <img src="https://img.shields.io/badge/Claude%20Code-statusline-6f42c1?style=flat-square">
@@ -17,7 +18,11 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo.svg" alt="statusline demo" width="640">
+  <sub><a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a></sub>
+</p>
+
+<p align="center">
+  <img src="assets/demo.gif" alt="cc-contextbar animated statusline demo" width="640">
 </p>
 
 ---
@@ -29,8 +34,8 @@
 | 🔋 **Battery bar** | `[██████░░░░]` fills up; green → yellow → red as your context fills. |
 | 🧠 **Any model** | GLM and other proxy-backed models report `used_percentage = 0`. cc-contextbar reads the transcript and computes **real** usage. |
 | ⚡ **Fast** | Pure `bash` + `jq`, ~30 ms per render. No Node, no process pile-up. |
-| 💸 **Real cost** | Cumulative tokens × your own rates (input / cache-read / output). |
-| 🛠️ **Zero config** | Works out of the box; set your rates in one file. |
+| 💸 **Real cost** | Cumulative tokens × rates. **Auto-detects** pricing by model (GLM, DeepSeek, Qwen, Kimi, Claude, GPT); override in one file. |
+| 🛠️ **Zero config** | Works out of the box — auto-pricing needs no setup. |
 | 🧩 **Plugin or curl** | Install as a Claude Code plugin or via a one-line script. |
 
 ## 🚀 Quick start
@@ -58,18 +63,23 @@ curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/
 
 Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wire the `statusLine` entry into `~/.claude/settings.json` (a `.bak` backup is written first). **Restart Claude Code** when done.
 
-## ⚙️ Set your pricing
+## ⚙️ Pricing
 
-Edit `~/.claude/ctxbar/pricing.env` with your provider's rates (per 1,000,000 tokens):
+Pricing is **auto-detected** from the model name (GLM, DeepSeek, Qwen, Kimi, Claude, GPT) — no setup needed. The auto rates are estimates; to use exact rates, create `~/.claude/ctxbar/pricing.env` (per 1,000,000 tokens):
 
 ```bash
 PRICE_INPUT=1.00        # regular input + cache creation
 PRICE_CACHE_READ=0.10   # cache read (cheaper)
 PRICE_OUTPUT=4.00       # output
 CUR='$'                 # currency symbol ($, ¥, €, …)
+
+# optional appearance
+# CTXBAR_SEGMENTS=10    # bar cell count
+# CTXBAR_FILL=█         # filled glyph
+# CTXBAR_EMPTY=░        # empty glyph
 ```
 
-Until you set these, the cost shows `--` (rates default to `0`).
+If `pricing.env` exists, it always wins (auto-detection is disabled). For unknown models without `pricing.env`, cost shows `--`.
 
 ## 🤔 Why does this exist?
 
@@ -102,6 +112,12 @@ curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/
 ```
 
 Removes the `statusLine` entry from `settings.json` (with backup) and deletes `~/.claude/ctxbar/`.
+
+## ⭐ Star History
+
+<a href="https://star-history.com/#evggzzz/cc-contextbar&Date">
+  <img src="https://api.star-history.com/svg?repos=evggzzz/cc-contextbar&type=Date" alt="Star History" width="600">
+</a>
 
 ## 📄 License
 
