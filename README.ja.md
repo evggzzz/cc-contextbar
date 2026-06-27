@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-  <a href="https://code.claude.com">Claude Code</a> 向けの、バッテリー残量のような<strong>コンテキストステータスライン</strong>。<br>
-  軽量・高速で、<strong>GLM などの非 Anthropic モデルでもちゃんと動きます</strong>。
+  <a href="https://code.claude.com">Claude Code</a> のステータスラインに、コンテキストの使用量を <strong>バッテリー風のバー</strong> で表示します。<br>
+  軽量・高速で、<strong>GLM などの非 Anthropic モデルにも対応</strong>しています。
 </p>
 
 <p align="center">
@@ -27,45 +27,45 @@
 
 ---
 
-## ✨ 機能
+## ✨ できること
 
 | | |
 |---|---|
-| 🔋 **バッテリーバー** | `[██████░░░░]` のように、会話が進むほど埋まっていきます。緑 → 黄 → 赤に切り替わります。 |
-| 🧠 **どのモデルでも使える** | GLM などプロキシ経由のモデルは `used_percentage` がずっと 0 のまま。cc-contextbar はトランスクリプトを直接読んで、**本当の使用量**を計算します。 |
-| ⚡ **高速** | `bash` + `jq` だけで動き、描画ごとに約 30 ms。Node 不要でプロセスも溜まりません。 |
-| 💸 **実コスト表示** | 累計トークン × 単価で計算します。モデル名から**料金を自動判定**（GLM / DeepSeek / Qwen / Kimi / Claude / GPT）し、ファイル1つで上書きもできます。 |
-| 🛠️ **設定不要** | インストールするだけで動きます。自動 pricing に設定は要りません。 |
-| 🧩 **プラグイン or 1 行** | Claude Code のプラグインとして入れるか、1 行コピペで入れるか、お好きな方で。 |
+| 🔋 **バッテリー風バー** | `[██████░░░░]` のように、会話が進むにつれて埋まっていき、緑 → 黄 → 赤に切り替わります。 |
+| 🧠 **非 Anthropic モデル対応** | GLM などプロキシ越しのモデルだと `used_percentage` がずっと 0 になってしまいます。cc-contextbar はトランスクリプトを直接読んで、**本当の使用量** を計算します。 |
+| ⚡ **高速** | `bash` + `jq` だけで動き、1 回の更新あたり約 30 ms。Node を使わないのでプロセスも溜まりません。 |
+| 💸 **コスト表示** | 累計トークン × 単価で計算します。モデル名から **料金を自動で判定**（GLM / DeepSeek / Qwen / Kimi / Claude / GPT）し、ファイル 1 つで上書きもできます。 |
+| 🛠️ **設定不要** | 入れるだけで動きます。自動 pricing のために何か設定する必要はありません。 |
+| 🧩 **簡単導入** | Claude Code プラグインとしても、1 行スクリプトからでも導入できます。 |
 
 ## 🚀 インストール
 
-> [`jq`](https://stedolan.github.io/jq/) が必要です —— `brew install jq` / `apt install jq`。
+> [`jq`](https://stedolan.github.io/jq/) が必要です（`brew install jq` / `apt install jq`）。
 
-**A — プラグインで入れる**
+**A. プラグインとして導入**
 
 ```bash
 claude plugin marketplace add evggzzz/cc-contextbar
 claude plugin install cc-contextbar@cc-contextbar
 ```
 
-そのあと、Claude Code 上で次を実行します。
+そのあと、Claude Code 上で次を実行してください。
 
 ```
 /cc-contextbar:install
 ```
 
-**B — 1 行で入れる**
+**B. 1 行で導入**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash
 ```
 
-どちらの方法でも、`statusline.sh` を `~/.claude/ctxbar/` に置き、`pricing.env` を生成して、`statusLine` の設定を `~/.claude/settings.json` に追記します（事前に `.bak` でバックアップを取ります）。終わったら **Claude Code を再起動**してください。
+どちらの方法でも、`statusline.sh` を `~/.claude/ctxbar/` に置き、`pricing.env` を生成したうえで、`~/.claude/settings.json` の `statusLine` を書き換えます（事前に `.bak` でバックアップを取ります）。終わったら Claude Code を再起動してください。
 
 ## ⚙️ 料金設定
 
-料金はモデル名から**自動で判定**されるため、設定なしで使えます（GLM / DeepSeek / Qwen / Kimi / Claude / GPT に対応）。ただし自動判定は推定値なので、正確な金額を出したいときは `~/.claude/ctxbar/pricing.env` を作って指定してください（単位は 100 万トークンあたり）。
+料金はモデル名から **自動で判定** されるため、設定なしでそのまま使えます（GLM / DeepSeek / Qwen / Kimi / Claude / GPT に対応）。ただし自動判定は推定値なので、正確な金額を出したい場合は `~/.claude/ctxbar/pricing.env` で指定してください（単位は 100 万トークンあたり）。
 
 ```bash
 PRICE_INPUT=1.00        # 通常入力 + キャッシュ生成
@@ -79,21 +79,21 @@ CUR='$'                 # 通貨記号（$ / ¥ / € など）
 # CTXBAR_EMPTY=░        # 空きセルの文字
 ```
 
-`pricing.env` を置けばそちらが常に優先されます（自動判定は使われなくなります）。未対応のモデルで `pricing.env` もない場合は、コストは `--` と表示されます。
+`pricing.env` を置けばそちらが優先され、自動判定は使われなくなります。未対応のモデルで `pricing.env` もない場合は、コストは `--` と表示されます。
 
-## 🤔 なぜこれを作ったのか
+## 🤔 なぜ作ったか
 
 > [!IMPORTANT]
-> Claude Code の標準ステータスラインは、GLM などプロキシ経由のモデルだと **`context_window.used_percentage` がずっと 0** を返します。つまり Anthropic 製以外のモデルを使うときほど、標準メーターが役に立たない —— cc-contextbar は**トランスクリプトを直接読む**ことで、これを解決します。
+> Claude Code の標準機能は、GLM などプロキシ越しのモデルだと **`context_window.used_percentage` がずっと 0** を返します。つまり、Anthropic 以外のモデルを使うときほど標準の使用量メーターが役に立たない、という問題があります。cc-contextbar は **トランスクリプトを直接読む** ことでこれを解決します。
 
-また、描画のたびに約 2 秒の Node プロセスを立ち上げて `node` が大量に溜まってしまう、重いステータスラインツールの代替にもなります。本ツールは `bash` + `jq` だけで、約 30 ms です。
+また、描画のたびに約 2 秒かかる Node プロセスを立ち上げ、`node` が大量に残ってしまうような重いステータスラインツールの代わりにもなります。本ツールは `bash` + `jq` だけで、約 30 ms で動きます。
 
 ## 🔬 仕組み
 
 - ステータスラインは stdin で Claude Code の JSON を受け取ります。そこから `model.display_name` と `context_window.context_window_size` を読みます。
-- **コンテキスト使用率** = 直近の assistant メッセージの `input + cache_creation + cache_read` トークン ÷ コンテキストウィンドウサイズ。
-- **コスト** = セッション全体でのこれらトークンの累計 × 単価。
-- 色の切り替わりは、`50%` 未満が緑、`80%` 未満が黄、`80%` 以上が赤。
+- **コンテキスト使用率** ＝ 直近の assistant メッセージの `input + cache_creation + cache_read` トークン ÷ コンテキストウィンドウサイズ。
+- **コスト** ＝ セッション全体での上記トークンの累計 × 単価。
+- 色は、`50%` 未満が緑、`80%` 未満が黄、`80%` 以上が赤に切り替わります。
 
 ## 📊 他との比較
 
@@ -111,7 +111,7 @@ CUR='$'                 # 通貨記号（$ / ¥ / € など）
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash -s -- --uninstall
 ```
 
-`settings.json` から `statusLine` の設定を削除し（バックアップ付き）、`~/.claude/ctxbar/` を消します。
+`settings.json` から `statusLine` を削除し（バックアップ付き）、`~/.claude/ctxbar/` を消去します。
 
 ## ⭐ Star History
 
