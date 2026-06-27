@@ -1,0 +1,11 @@
+{
+  "name": "cc-contextbar",
+  "owner": { "name": "evggzzz" },
+  "plugins": [
+    {
+      "name": "cc-contextbar",
+      "description": "Battery-style context-window statusline for Claude Code",
+      "source": "./"
+    }
+  ]
+}

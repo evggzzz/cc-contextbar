@@ -1,0 +1,8 @@
+# user-specific pricing (contains personal token rates)
+pricing.env
+
+# installer backups
+*.bak
+
+# macOS
+.DS_Store
