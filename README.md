@@ -1,56 +1,64 @@
-# cc-contextbar
+<p align="center">
+  <img src="assets/banner.svg" alt="cc-contextbar" width="760">
+</p>
 
-A lightweight, battery-style **context-window statusline** for [Claude Code](https://code.claude.com).
+<p align="center">
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.0.0-3fb950?style=flat-square"></a>
+  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
+  <img src="https://img.shields.io/badge/Claude%20Code-statusline-6f42c1?style=flat-square">
+  <img src="https://img.shields.io/badge/built%20with-bash%20%2B%20jq-1f1f1f?style=flat-square">
+  <img src="https://img.shields.io/github/stars/evggzzz/cc-contextbar?style=flat-square&color=yellow">
+</p>
 
-```
-🤖 glm-5.2[1m] · [█████░░░░░] 52% · $1.23
-```
+<p align="center">
+  A battery-style <strong>context-window statusline</strong> for <a href="https://code.claude.com">Claude Code</a>.<br>
+  Fast, dependency-light — and it actually works with <strong>non-Anthropic models</strong> (GLM, etc.).
+</p>
 
-It shows, next to your chat input:
-
-- 🤖 current model
-- `[█████░░░░░]` a **battery-style bar** of context-window usage (green → yellow → red)
-- the usage **%** and the running **cost** (from your own token pricing)
-
-### Why
-
-Claude Code's native statusline fields (`context_window.used_percentage`) report **0** for non-Anthropic models (GLM, and other proxy-backed models). cc-contextbar instead reads the **transcript** and computes real token usage — so the bar actually works no matter which model you run.
-
-It's also **fast**: pure `bash` + `jq`, ~30 ms per render (vs. ~2 s for Node-based tools that pile up processes).
+<p align="center">
+  <img src="assets/demo.svg" alt="statusline demo" width="640">
+</p>
 
 ---
 
-## Requirements
+## ✨ Features
 
-- [Claude Code](https://code.claude.com) (statusline support)
-- [`jq`](https://stedolan.github.io/jq/) — `brew install jq` (macOS) or `apt install jq` (Linux)
+| | |
+|---|---|
+| 🔋 **Battery bar** | `[██████░░░░]` fills up; green → yellow → red as your context fills. |
+| 🧠 **Any model** | GLM and other proxy-backed models report `used_percentage = 0`. cc-contextbar reads the transcript and computes **real** usage. |
+| ⚡ **Fast** | Pure `bash` + `jq`, ~30 ms per render. No Node, no process pile-up. |
+| 💸 **Real cost** | Cumulative tokens × your own rates (input / cache-read / output). |
+| 🛠️ **Zero config** | Works out of the box; set your rates in one file. |
+| 🧩 **Plugin or curl** | Install as a Claude Code plugin or via a one-line script. |
 
-## Install
+## 🚀 Quick start
 
-### Option A — as a Claude Code plugin (recommended)
+> Requires [`jq`](https://stedolan.github.io/jq/) — `brew install jq` / `apt install jq`.
+
+**Option A — as a plugin**
 
 ```bash
 claude plugin marketplace add evggzzz/cc-contextbar
 claude plugin install cc-contextbar@cc-contextbar
 ```
 
-Then inside Claude Code run:
+Then inside Claude Code:
 
 ```
 /cc-contextbar:install
 ```
 
-### Option B — one-line install (no plugin)
+**Option B — one-liner**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash
 ```
 
-Both methods copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wire the `statusLine` entry into `~/.claude/settings.json` (a `.bak` backup is written first).
+Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wire the `statusLine` entry into `~/.claude/settings.json` (a `.bak` backup is written first). **Restart Claude Code** when done.
 
-**Restart Claude Code** after installing.
-
-## Configure pricing
+## ⚙️ Set your pricing
 
 Edit `~/.claude/ctxbar/pricing.env` with your provider's rates (per 1,000,000 tokens):
 
@@ -61,25 +69,40 @@ PRICE_OUTPUT=4.00       # output
 CUR='$'                 # currency symbol ($, ¥, €, …)
 ```
 
-Until you set these, the cost shows `--` (rates default to 0).
+Until you set these, the cost shows `--` (rates default to `0`).
 
-## Uninstall
+## 🤔 Why does this exist?
+
+> [!IMPORTANT]
+> Claude Code's native statusline fields report **`context_window.used_percentage = 0`** for non-Anthropic models (GLM, and anything behind a proxy). So the built-in context meter is useless exactly when you're not on Anthropic — cc-contextbar fixes that by reading the **transcript** directly.
+
+It also replaces heavier Node-based statusline tools that spawn a ~2 s process on every render and pile up dozens of `node` processes. This is `bash` + `jq` — ~30 ms.
+
+## 🔬 How it works
+
+- The statusline receives Claude Code's JSON on stdin. We read `model.display_name` and `context_window.context_window_size`.
+- **Context %** = last assistant message's `input + cache_creation + cache_read` tokens ÷ context window size.
+- **Cost** = Σ across the session of those token buckets × your rates.
+- Color thresholds: `< 50%` green · `< 80%` yellow · `≥ 80%` red.
+
+## 📊 Comparison
+
+| | Native `/context` | `ccusage statusline` | **cc-contextbar** |
+|---|:--:|:--:|:--:|
+| Non-Anthropic models | ❌ shows 0 | ✅ | ✅ |
+| Always-on statusline | ❌ on-demand | ✅ | ✅ |
+| Cost from custom pricing | ❌ | ⚠️ own rates | ✅ |
+| Startup speed | — | ~2 s (Node) | **~30 ms (bash)** |
+| Process pile-up | — | ⚠️ common | ✅ none |
+
+## 🗑️ Uninstall
 
 ```bash
-bash ~/.claude/ctxbar/../cc-contextbar/scripts/install.sh --uninstall
-# or, if you used curl/plugin:
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash -s -- --uninstall
 ```
 
-This removes the `statusLine` entry from `settings.json` (with backup) and deletes `~/.claude/ctxbar/`.
+Removes the `statusLine` entry from `settings.json` (with backup) and deletes `~/.claude/ctxbar/`.
 
-## How it works
-
-- The statusline command receives Claude Code's JSON on stdin. From it, cc-contextbar takes `model.display_name` and `context_window.context_window_size`.
-- **Context %** = (last assistant message's `input + cache_creation + cache_read` tokens) ÷ context window size. Reading the transcript is what makes it work for non-Anthropic models.
-- **Cost** = Σ over the session of those token buckets × your configured rates.
-- Color thresholds: `<50%` green, `<80%` yellow, `≥80%` red.
-
-## License
+## 📄 License
 
 MIT © [evggzzz](https://github.com/evggzzz)
