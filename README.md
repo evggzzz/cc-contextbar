@@ -64,11 +64,11 @@ Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wi
 
 ## 📸 The band
 
-**Terminal** (macOS) — line 2 is your z.ai quota, read from the cc-zaiquota daemon's cache:
+**Terminal** (macOS) — the band sits right above the input box; line 2 is your z.ai quota, read from the cc-zaiquota daemon's cache:
 
 ![cc-contextbar band in the terminal](assets/band-cli.png)
 
-**Desktop Code tab** — line 2 is your Claude plan's own rate-limit windows, as the API reported them:
+**Desktop Code tab** — the band sits above the chat input; line 2 is your Claude plan's own rate-limit windows, as the API reported them:
 
 ![cc-contextbar band in the Claude desktop app](assets/band-gui.png)
 

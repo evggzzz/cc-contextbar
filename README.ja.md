@@ -64,11 +64,11 @@ curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/
 
 ## 📸 バンドの見た目
 
-**ターミナル**（macOS）— 2行目は cc-zaiquota daemon のキャッシュから z.ai quota を表示:
+**ターミナル**（macOS）— バンドは入力欄のすぐ上に表示されます。2行目は cc-zaiquota daemon のキャッシュから z.ai quota を表示:
 
 ![ターミナルでの cc-contextbar バンド](assets/band-cli.png)
 
-**デスクトップの Code タブ** — 2行目は API が返した Claude プランのレートリミットを表示:
+**デスクトップの Code タブ** — チャット入力欄の上にバンドが表示されます。2行目は API が返した Claude プランのレートリミットを表示:
 
 ![Claude デスクトップアプリでの cc-contextbar バンド](assets/band-gui.png)
 
