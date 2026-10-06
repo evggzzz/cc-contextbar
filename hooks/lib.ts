@@ -28,6 +28,25 @@ export function parseQuota(text: string): QuotaState | null {
   }
 }
 
+// The engine's own rate-limit readings (from the last API response) -> segments.
+// Only these kinds are drawn; anything else a gateway invents is skipped.
+export type RateLimitLike = { kind: string; percentUsed?: number; resetsAt?: string }
+export type LimitSeg = { label: string; pct: number; resetAt: number | null }
+
+const RL_ORDER = ['five_hour', 'seven_day', 'spend_limit']
+const RL_LABELS: Record<string, string> = { five_hour: '5h', seven_day: 'wk', spend_limit: 'spend' }
+
+export function rateLimitSegs(limits: readonly RateLimitLike[]): LimitSeg[] {
+  return [...limits]
+    .filter((l) => RL_ORDER.includes(l?.kind))
+    .sort((a, b) => RL_ORDER.indexOf(a.kind) - RL_ORDER.indexOf(b.kind))
+    .map((l) => ({
+      label: RL_LABELS[l.kind] ?? l.kind,
+      pct: Math.floor(l.percentUsed ?? 0),
+      resetAt: l.resetsAt ? Date.parse(l.resetsAt) : null,
+    }))
+}
+
 // Filled segments of a 10-segment bar, bash's `pct * SEGMENTS / 100` capped.
 export function barFill(pct: number, segments = 10): number {
   return Math.min(segments, Math.floor((Math.max(0, pct) * segments) / 100))

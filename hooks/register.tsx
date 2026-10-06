@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
-import { barFill, costText, parseQuota, prettyModel, quotaColor, remainText } from './lib'
+import { barFill, costText, parseQuota, prettyModel, quotaColor, rateLimitSegs, remainText } from './lib'
 import type { QuotaState } from '../types'
 
 const quota = atom({ plugin: 'cc-contextbar', key: 'quota' } as const, null)
@@ -56,25 +56,45 @@ export const register: Register = on => {
       </Text>
     )
 
-    // line 2: ⏳ 5h [████░░░░░░] 12% 1h34m · wk ... · MCP 23% · 41m
+    const nowSec = Math.floor((await $.clock.now()) / 1000)
+    const seg = (label: string, p: number, resetMs: number | null) => (
+      <Text>
+        {label}{' '}
+        <Text color={quotaColor(p)}>{'█'.repeat(barFill(p))}</Text>
+        <Text dimColor>{'░'.repeat(10 - barFill(p))}</Text>{' '}
+        <Text bold color={quotaColor(p)}>
+          {p}%
+        </Text>
+        {resetMs !== null && Number.isFinite(resetMs) ? (
+          <Text dimColor> {remainText(resetMs, nowSec)}</Text>
+        ) : null}
+      </Text>
+    )
+
+    // Quota source by surface: the terminal session runs on the z.ai gateway, so
+    // line 2 there reads the cc-zaiquota daemon's cache. Every other surface
+    // (desktop Code tab on a Claude plan, vscode, mobile) shows the rate-limit
+    // windows the API itself reported — falling back to the cache when the plan
+    // has none (e.g. before the session's first API response).
+    const rlSegs = e.surface === 'terminal' ? [] : rateLimitSegs(usage.rateLimits ?? [])
+
     let line2
-    if (!state) {
-      line2 = <Text color="yellow">⏳ z.ai quota: run /cc-zaiquota:refresh</Text>
-    } else {
-      const nowSec = Math.floor((await $.clock.now()) / 1000)
-      const seg = (label: string, w: { pct: number; resetAt: number }) => (
+    if (rlSegs.length > 0) {
+      const parts: any[] = []
+      rlSegs.forEach((s, i) => {
+        if (i > 0) parts.push(' · ')
+        parts.push(seg(s.label, s.pct, s.resetAt))
+      })
+      line2 = (
         <Text>
-          {label}{' '}
-          <Text color={quotaColor(w.pct)}>{'█'.repeat(barFill(w.pct))}</Text>
-          <Text dimColor>{'░'.repeat(10 - barFill(w.pct))}</Text>{' '}
-          <Text bold color={quotaColor(w.pct)}>
-            {w.pct}%
-          </Text>{' '}
-          <Text dimColor>{remainText(w.resetAt, nowSec)}</Text>
+          ⏳ {parts}
         </Text>
       )
-      const parts: any[] = [seg('5h', state.h5)]
-      if (state.wk) parts.push(' · ', seg('wk', state.wk))
+    } else if (!state) {
+      line2 = <Text color="yellow">⏳ z.ai quota: run /cc-zaiquota:refresh</Text>
+    } else {
+      const parts: any[] = [seg('5h', state.h5.pct, state.h5.resetAt > 0 ? state.h5.resetAt : null)]
+      if (state.wk) parts.push(' · ', seg('wk', state.wk.pct, state.wk.resetAt > 0 ? state.wk.resetAt : null))
       if (state.mcp !== null) parts.push(' · ', <Text bold color="green">MCP {state.mcp}%</Text>)
       if (state.fetchedAt > 0) {
         const agoM = Math.max(0, Math.floor((nowSec - state.fetchedAt) / 60))

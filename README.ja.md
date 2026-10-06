@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.1.0-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.0-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
@@ -31,7 +31,7 @@
 
 | | |
 |---|---|
-| 🎛️ **バンド（mod）表示** | 1.1.0 から：同じ情報を **プロンプト上部のライブバンド** として表示。ターミナルとデスクトップの Code タブの両方に対応し、`statusLine` の設定も不要です。 |
+| 🎛️ **バンド（mod）表示** | 1.1.0 から：**プロンプト上部のライブバンド** として表示。ターミナルとデスクトップの Code タブの両方に対応し、`statusLine` の設定も不要です。1.2.0 から quota 行は **サーフェスで切り替え**: ターミナルでは z.ai quota、デスクトップでは Claude プランのレートリミットを表示します。 |
 | 🔋 **バッテリー風バー** | `[██████░░░░]` のように、会話が進むにつれて埋まっていき、緑 → 黄 → 赤に切り替わります。 |
 | 🧠 **非 Anthropic モデル対応** | GLM などプロキシ越しのモデルだと `used_percentage` がずっと 0 になってしまいます。cc-contextbar はトランスクリプトを直接読んで、**本当の使用量** を計算します。 |
 | ⚡ **高速** | `bash` + `jq` だけで動き、1 回の更新あたり約 30 ms。Node を使わないのでプロセスも溜まりません。 |
@@ -48,7 +48,7 @@ claude plugin marketplace add evggzzz/cc-contextbar
 claude plugin install cc-contextbar@cc-contextbar
 ```
 
-Claude Code を再起動すると、プロンプトの上にライブバンドが表示されます：コンテキスト使用率・セッションコスト、さらに [cc-zaiquota](https://github.com/evggzzz/cc-zaiquota) の daemon があれば z.ai quota（5h / 週 / MCP）。`jq` も `statusLine` 設定も不要です。
+Claude Code を再起動すると、プロンプトの上にライブバンドが表示されます：コンテキスト使用率・セッションコストに加え、quota 行は **表示先で切り替わります** — ターミナルでは [cc-zaiquota](https://github.com/evggzzz/cc-zaiquota) の daemon キャッシュから **z.ai quota**（5h / 週 / MCP）、デスクトップの Code タブでは API が返した **Claude プランのレートリミット** を表示。`jq` も `statusLine` 設定も不要です。
 
 **B. 従来の statusline として導入**
 
@@ -61,6 +61,21 @@ curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/
 どちらの方法でも、`statusline.sh` を `~/.claude/ctxbar/` に置き、`pricing.env` を生成したうえで、`~/.claude/settings.json` の `statusLine` を書き換えます（事前に `.bak` でバックアップを取ります）。[`jq`](https://stedolan.github.io/jq/) が必要です（`brew install jq` / `apt install jq`）。終わったら Claude Code を再起動してください。
 
 > ⚠️ **どちらか一方だけ** にしてください。バンドと `statusLine` は同じ情報を表示するため、両方入れると二重表示になります。
+
+## 📸 バンドの見た目
+
+**ターミナル**（macOS）— 2行目は cc-zaiquota daemon のキャッシュから z.ai quota を表示:
+
+![ターミナルでの cc-contextbar バンド](assets/band-cli.png)
+
+**デスクトップの Code タブ** — 2行目は API が返した Claude プランのレートリミットを表示:
+
+![Claude デスクトップアプリでの cc-contextbar バンド](assets/band-gui.png)
+
+| サーフェス | 2行目の情報源 |
+|---|---|
+| ターミナル | z.ai quota — cc-zaiquota daemon の `quota.cache`（5h / 週 / MCP、通信なし） |
+| デスクトップ / vscode / mobile | API のレートリミット（`five_hour` / `seven_day`）。プランが報告しない場合はキャッシュへフォールバック |
 
 ## ⚙️ 料金設定
 

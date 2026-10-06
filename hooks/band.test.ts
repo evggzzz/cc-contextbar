@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { barFill, costText, parseQuota, prettyModel, quotaColor, remainText } from './lib'
+import { barFill, costText, parseQuota, prettyModel, quotaColor, rateLimitSegs, remainText } from './lib'
 
 // Real quota.cache shape (2026-10-06), names untouched.
 const FIXTURE = JSON.stringify({
@@ -27,6 +27,26 @@ test('parseQuota reads the zaiquota cache shape', () => {
 test('parseQuota survives broken json and an empty limits array', () => {
   expect(parseQuota('not json')).toEqual(null)
   expect(parseQuota(JSON.stringify({ fetched_at: 1, data: { limits: [] } }))).toEqual(null)
+})
+
+test('rateLimitSegs maps and orders the API rate-limit kinds', () => {
+  const h5 = '2026-10-06T03:00:19.129Z'
+  const wk = '2026-10-08T00:41:21.999Z'
+  expect(
+    rateLimitSegs([
+      { kind: 'seven_day', percentUsed: 7, resetsAt: wk },
+      { kind: 'five_hour', percentUsed: 23.5, resetsAt: h5 },
+      { kind: 'mystery', percentUsed: 90 },
+    ]),
+  ).toEqual([
+    { label: '5h', pct: 23, resetAt: Date.parse(h5) },
+    { label: 'wk', pct: 7, resetAt: Date.parse(wk) },
+  ])
+})
+
+test('rateLimitSegs tolerates missing resetsAt and an empty list', () => {
+  expect(rateLimitSegs([{ kind: 'five_hour', percentUsed: 12 }])).toEqual([{ label: '5h', pct: 12, resetAt: null }])
+  expect(rateLimitSegs([])).toEqual([])
 })
 
 test('barFill caps at the segment count', () => {
