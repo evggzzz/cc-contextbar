@@ -1,10 +1,11 @@
 {
   "name": "cc-contextbar",
-  "description": "Lightweight battery-style context-window statusline for Claude Code. Computes real token usage from the transcript, so it works with non-Anthropic models (GLM, etc.) where the native used_percentage is always 0.",
-  "version": "1.0.0",
+  "description": "Battery-style context bar for Claude Code, drawn as a live band above the prompt: real context %, session cost and z.ai quota windows (5h / weekly / MCP). Also still ships the classic statusline script.",
+  "version": "1.1.0",
   "author": { "name": "evggzzz", "url": "https://github.com/evggzzz" },
   "license": "MIT",
   "homepage": "https://github.com/evggzzz/cc-contextbar",
   "repository": "https://github.com/evggzzz/cc-contextbar",
-  "keywords": ["statusline", "context-window", "tokens", "cost", "claude-code"]
+  "keywords": ["statusline", "band", "mod", "context-window", "tokens", "cost", "quota", "claude-code"],
+  "types": "./types/index.d.ts"
 }

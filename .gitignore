@@ -6,3 +6,6 @@ pricing.env
 
 # macOS
 .DS_Store
+
+# engine-generated editor types (local only)
+.claude-plugin/types/

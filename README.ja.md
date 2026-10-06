@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.0.0-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.1.0-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
@@ -31,6 +31,7 @@
 
 | | |
 |---|---|
+| 🎛️ **バンド（mod）表示** | 1.1.0 から：同じ情報を **プロンプト上部のライブバンド** として表示。ターミナルとデスクトップの Code タブの両方に対応し、`statusLine` の設定も不要です。 |
 | 🔋 **バッテリー風バー** | `[██████░░░░]` のように、会話が進むにつれて埋まっていき、緑 → 黄 → 赤に切り替わります。 |
 | 🧠 **非 Anthropic モデル対応** | GLM などプロキシ越しのモデルだと `used_percentage` がずっと 0 になってしまいます。cc-contextbar はトランスクリプトを直接読んで、**本当の使用量** を計算します。 |
 | ⚡ **高速** | `bash` + `jq` だけで動き、1 回の更新あたり約 30 ms。Node を使わないのでプロセスも溜まりません。 |
@@ -40,28 +41,26 @@
 
 ## 🚀 インストール
 
-> [`jq`](https://stedolan.github.io/jq/) が必要です（`brew install jq` / `apt install jq`）。
-
-**A. プラグインとして導入**
+**A. バンド（mod）として導入 — 推奨**
 
 ```bash
 claude plugin marketplace add evggzzz/cc-contextbar
 claude plugin install cc-contextbar@cc-contextbar
 ```
 
-そのあと、Claude Code 上で次を実行してください。
+Claude Code を再起動すると、プロンプトの上にライブバンドが表示されます：コンテキスト使用率・セッションコスト、さらに [cc-zaiquota](https://github.com/evggzzz/cc-zaiquota) の daemon があれば z.ai quota（5h / 週 / MCP）。`jq` も `statusLine` 設定も不要です。
 
-```
-/cc-contextbar:install
-```
+**B. 従来の statusline として導入**
 
-**B. 1 行で導入**
+A と同じコマンドで導入したうえで、Claude Code 上で `/cc-contextbar:install` を実行してください。次の 1 行でも導入できます：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash
 ```
 
-どちらの方法でも、`statusline.sh` を `~/.claude/ctxbar/` に置き、`pricing.env` を生成したうえで、`~/.claude/settings.json` の `statusLine` を書き換えます（事前に `.bak` でバックアップを取ります）。終わったら Claude Code を再起動してください。
+どちらの方法でも、`statusline.sh` を `~/.claude/ctxbar/` に置き、`pricing.env` を生成したうえで、`~/.claude/settings.json` の `statusLine` を書き換えます（事前に `.bak` でバックアップを取ります）。[`jq`](https://stedolan.github.io/jq/) が必要です（`brew install jq` / `apt install jq`）。終わったら Claude Code を再起動してください。
+
+> ⚠️ **どちらか一方だけ** にしてください。バンドと `statusLine` は同じ情報を表示するため、両方入れると二重表示になります。
 
 ## ⚙️ 料金設定
 

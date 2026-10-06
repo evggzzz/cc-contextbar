@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.0.0-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.1.0-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
@@ -31,6 +31,7 @@
 
 | | |
 |---|---|
+| 🎛️ **Band mod** | Since 1.1.0: the same bar drawn as a **live band above the prompt** — terminal and desktop Code tab, no `statusLine` entry needed. |
 | 🔋 **Battery bar** | `[██████░░░░]` fills up; green → yellow → red as your context fills. |
 | 🧠 **Any model** | GLM and other proxy-backed models report `used_percentage = 0`. cc-contextbar reads the transcript and computes **real** usage. |
 | ⚡ **Fast** | Pure `bash` + `jq`, ~30 ms per render. No Node, no process pile-up. |
@@ -40,28 +41,26 @@
 
 ## 🚀 Quick start
 
-> Requires [`jq`](https://stedolan.github.io/jq/) — `brew install jq` / `apt install jq`.
-
-**Option A — as a plugin**
+**Option A — band mod (recommended)**
 
 ```bash
 claude plugin marketplace add evggzzz/cc-contextbar
 claude plugin install cc-contextbar@cc-contextbar
 ```
 
-Then inside Claude Code:
+**Restart Claude Code.** A live **band above the prompt** then shows your context %, session cost and — if the [cc-zaiquota](https://github.com/evggzzz/cc-zaiquota) daemon is present — your z.ai quota windows (5h / weekly / MCP). No `jq`, no `statusLine` entry, works in the terminal and the desktop Code tab.
 
-```
-/cc-contextbar:install
-```
+**Option B — classic statusline**
 
-**Option B — one-liner**
+Install as in Option A, then run `/cc-contextbar:install` inside Claude Code — or just use the one-liner:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/install.sh | bash
 ```
 
-Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wire the `statusLine` entry into `~/.claude/settings.json` (a `.bak` backup is written first). **Restart Claude Code** when done.
+Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wire the `statusLine` entry into `~/.claude/settings.json` (a `.bak` backup is written first). Requires [`jq`](https://stedolan.github.io/jq/) — `brew install jq` / `apt install jq`. **Restart Claude Code** when done.
+
+> ⚠️ **Pick one.** The band and the `statusLine` show the same information — installing both renders it twice.
 
 ## ⚙️ Pricing
 
