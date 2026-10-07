@@ -1,8 +1,19 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
-import { barFill, costText, parseQuota, prettyModel, quotaColor, rateLimitSegs, remainText } from './lib'
+import {
+  STORE_KEY,
+  agoText,
+  barFill,
+  costText,
+  parseQuota,
+  prettyModel,
+  quotaColor,
+  rateLimitSegs,
+  remainText,
+} from './lib'
 import type { QuotaState } from '../types'
+import type { StoredLimits } from './lib'
 
 const quota = atom({ plugin: 'cc-contextbar', key: 'quota' } as const, null)
 
@@ -32,6 +43,25 @@ export const register: Register = on => {
     })
 
     return started
+  })
+
+  // Keep the plan's latest rate-limit reading across sessions: a fresh desktop
+  // session has none until its first API response, and the last one is a better
+  // stand-in than nothing. The terminal reads z.ai, whose readings are empty,
+  // so its turns never pollute the stored plan limits.
+  on('turn.complete', async ($, e, next) => {
+    const done = await next(e)
+    if (e.agentId !== undefined) return done
+    try {
+      const usage = await $.session.usage()
+      if (usage.rateLimits.length > 0) {
+        const stored: StoredLimits = { segs: rateLimitSegs(usage.rateLimits), at: await $.clock.now() }
+        await $.store.set(STORE_KEY, stored)
+      }
+    } catch {
+      // the previous reading stays; nothing to report
+    }
+    return done
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
@@ -76,7 +106,8 @@ export const register: Register = on => {
     // (desktop Code tab on a Claude plan, vscode, mobile) shows the rate-limit
     // windows the API itself reported — never the cache, which belongs to the
     // CLI's gateway and would mislead here. Before the session's first API
-    // response no reading exists, so a dim waiting hint stands in until one does.
+    // response no reading exists, so the previous turn's stored reading stands
+    // in (marked with its age); on a first-ever run a dim waiting hint does.
     const rlSegs = e.surface === 'terminal' ? [] : rateLimitSegs(usage.rateLimits ?? [])
 
     let line2
@@ -92,7 +123,31 @@ export const register: Register = on => {
         </Text>
       )
     } else if (e.surface !== 'terminal') {
-      line2 = <Text dimColor>⏳ plan limits: waiting for this session's first reply</Text>
+      let line2Waiting: boolean = true
+      const parts: any[] = []
+      try {
+        const stored = (await $.store.get(STORE_KEY)) as StoredLimits | undefined
+        if (stored && Array.isArray(stored.segs) && stored.segs.length > 0) {
+          line2Waiting = false
+          stored.segs.forEach((s, i) => {
+            if (i > 0) parts.push(' · ')
+            parts.push(seg(s.label, s.pct, s.resetAt))
+          })
+          if (typeof stored.at === 'number' && stored.at > 0) {
+            const agoM = Math.max(0, Math.floor((nowSec * 1000 - stored.at) / 60_000))
+            parts.push(<Text dimColor> · {agoText(agoM)}</Text>)
+          }
+        }
+      } catch {
+        // fall through to the waiting hint
+      }
+      line2 = line2Waiting ? (
+        <Text dimColor>⏳ plan limits: waiting for this session's first reply</Text>
+      ) : (
+        <Text>
+          ⏳ {parts}
+        </Text>
+      )
     } else if (!state) {
       line2 = <Text color="yellow">⏳ z.ai quota: run /cc-zaiquota:refresh</Text>
     } else {

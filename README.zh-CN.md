@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.1-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.2-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">

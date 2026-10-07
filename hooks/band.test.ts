@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { barFill, costText, parseQuota, prettyModel, quotaColor, rateLimitSegs, remainText } from './lib'
+import { agoText, barFill, costText, parseQuota, prettyModel, quotaColor, rateLimitSegs, remainText } from './lib'
 
 // Real quota.cache shape (2026-10-06), names untouched.
 const FIXTURE = JSON.stringify({
@@ -47,6 +47,12 @@ test('rateLimitSegs maps and orders the API rate-limit kinds', () => {
 test('rateLimitSegs tolerates missing resetsAt and an empty list', () => {
   expect(rateLimitSegs([{ kind: 'five_hour', percentUsed: 12 }])).toEqual([{ label: '5h', pct: 12, resetAt: null }])
   expect(rateLimitSegs([])).toEqual([])
+})
+
+test('agoText marks the age of a stored reading', () => {
+  expect(agoText(0)).toBe('0m ago')
+  expect(agoText(14)).toBe('14m ago')
+  expect(agoText(192)).toBe('3h12m ago')
 })
 
 test('barFill caps at the segment count', () => {

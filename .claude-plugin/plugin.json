@@ -1,7 +1,7 @@
 {
   "name": "cc-contextbar",
   "description": "Battery-style context bar for Claude Code, drawn as a live band above the prompt: real context %, session cost, and quota windows that follow the surface — z.ai quota in the terminal, Claude-plan rate limits in the desktop Code tab. Also still ships the classic statusline script.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": { "name": "evggzzz", "url": "https://github.com/evggzzz" },
   "license": "MIT",
   "homepage": "https://github.com/evggzzz/cc-contextbar",

@@ -33,6 +33,10 @@ export function parseQuota(text: string): QuotaState | null {
 export type RateLimitLike = { kind: string; percentUsed?: number; resetsAt?: string }
 export type LimitSeg = { label: string; pct: number; resetAt: number | null }
 
+/** What $.store keeps so a fresh session can show the previous reading. */
+export type StoredLimits = { segs: LimitSeg[]; at: number }
+export const STORE_KEY = 'lastPlanLimits'
+
 const RL_ORDER = ['five_hour', 'seven_day', 'spend_limit']
 const RL_LABELS: Record<string, string> = { five_hour: '5h', seven_day: 'wk', spend_limit: 'spend' }
 
@@ -45,6 +49,12 @@ export function rateLimitSegs(limits: readonly RateLimitLike[]): LimitSeg[] {
       pct: Math.floor(l.percentUsed ?? 0),
       resetAt: l.resetsAt ? Date.parse(l.resetsAt) : null,
     }))
+}
+
+/** "14m ago" / "3h12m ago" — age marker for a stored reading. */
+export function agoText(minutes: number): string {
+  if (minutes >= 60) return `${Math.floor(minutes / 60)}h${minutes % 60}m ago`
+  return `${minutes}m ago`
 }
 
 // Filled segments of a 10-segment bar, bash's `pct * SEGMENTS / 100` capped.

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.1-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.2-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
@@ -75,7 +75,7 @@ curl -fsSL https://raw.githubusercontent.com/evggzzz/cc-contextbar/main/scripts/
 | サーフェス | 2行目の情報源 |
 |---|---|
 | ターミナル | z.ai quota — cc-zaiquota daemon の `quota.cache`（5h / 週 / MCP、通信なし） |
-| デスクトップ / vscode / mobile | API のレートリミット（`five_hour` / `seven_day`）。セッション最初の応答以降に表示され、それまでは待ち表示（z.ai キャッシュは出ない） |
+| デスクトップ / vscode / mobile | API のレートリミット（`five_hour` / `seven_day`）。セッション最初の応答以降に表示され、それまでは**前回セッションの最後の読取値**（経過時間付き）を表示。初回のみ待ち表示（z.ai キャッシュは出ない） |
 
 ## ⚙️ 料金設定
 
