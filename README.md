@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.0-3fb950?style=flat-square"></a>
+  <a href="https://github.com/evggzzz/cc-contextbar/releases"><img src="https://img.shields.io/badge/version-1.2.1-3fb950?style=flat-square"></a>
   <a href="https://github.com/evggzzz/cc-contextbar/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/evggzzz/cc-contextbar/ci.yml?style=flat-square&label=CI"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square">
@@ -75,7 +75,7 @@ Both copy `statusline.sh` to `~/.claude/ctxbar/`, create a `pricing.env`, and wi
 | Surface | Line 2 source |
 |---|---|
 | terminal | z.ai quota — cc-zaiquota daemon's `quota.cache` (5h / weekly / MCP, zero network) |
-| desktop / vscode / mobile | the API's rate-limit windows (`five_hour` / `seven_day`); falls back to the cache when the plan reports none |
+| desktop / vscode / mobile | the API's rate-limit windows (`five_hour` / `seven_day`) — appear once the session has made its first API call; before that, a dim waiting hint (never the z.ai cache) |
 
 ## ⚙️ Pricing
 

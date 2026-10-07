@@ -74,8 +74,9 @@ export const register: Register = on => {
     // Quota source by surface: the terminal session runs on the z.ai gateway, so
     // line 2 there reads the cc-zaiquota daemon's cache. Every other surface
     // (desktop Code tab on a Claude plan, vscode, mobile) shows the rate-limit
-    // windows the API itself reported — falling back to the cache when the plan
-    // has none (e.g. before the session's first API response).
+    // windows the API itself reported — never the cache, which belongs to the
+    // CLI's gateway and would mislead here. Before the session's first API
+    // response no reading exists, so a dim waiting hint stands in until one does.
     const rlSegs = e.surface === 'terminal' ? [] : rateLimitSegs(usage.rateLimits ?? [])
 
     let line2
@@ -90,6 +91,8 @@ export const register: Register = on => {
           ⏳ {parts}
         </Text>
       )
+    } else if (e.surface !== 'terminal') {
+      line2 = <Text dimColor>⏳ plan limits: waiting for this session's first reply</Text>
     } else if (!state) {
       line2 = <Text color="yellow">⏳ z.ai quota: run /cc-zaiquota:refresh</Text>
     } else {
